@@ -1,0 +1,69 @@
+@import './assets/fontello.css';
+@import './lib/variables.scss';
+
+/* HTML5 display-role reset for older browsers */
+article,
+aside,
+details,
+figcaption,
+figure,
+footer,
+header,
+hgroup,
+menu,
+nav,
+section,
+main {
+  display: block;
+}
+ul,
+ol {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+}
+a {
+  color: inherit;
+  text-decoration: none;
+}
+dd {
+  margin: 0;
+}
+fieldset {
+  margin: 0;
+  border: none;
+}
+body *,
+body *::before,
+body *::after {
+  box-sizing: border-box;
+}
+html {
+  font-size: 10px;
+}
+body {
+  font-family: 'Roboto', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  min-width: $min-width;
+  max-width: $max-width;
+  margin: 0 auto;
+}
+button:focus,
+input:focus {
+  outline: none;
+}
+.a11y-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  background-color: blue;
+  clip: rect(0, 0, 0, 0);
+  clip-path: polygon(0 0, 0 0, 0 0);
+}
+.clearfix::after {
+  content: '';
+  clear: both;
+  display: block;
+}
