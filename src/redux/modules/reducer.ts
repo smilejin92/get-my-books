@@ -5,4 +5,5 @@ const reducer = combineReducers({
   books: books,
 });
 
+export type RootState = ReturnType<typeof reducer>;
 export default reducer;
