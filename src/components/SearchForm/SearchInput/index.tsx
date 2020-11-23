@@ -1,6 +1,6 @@
 import React, { ChangeEvent } from 'react';
 import classNames from 'classnames/bind';
-import s from './SearchInput.module.scss';
+import s from './style.module.scss';
 
 interface InputProps {
   prevQuery: string;
@@ -20,7 +20,7 @@ function SearchInput({ prevQuery, handleChange }: InputProps) {
         id="search-term"
         // type="search" // addEventListener 문제
         type="text"
-        className={s['serach-term']}
+        className={s['search-term']}
         placeholder="제목을 입력해주세요"
         autoComplete="off"
         defaultValue={prevQuery}
