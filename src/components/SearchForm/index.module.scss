@@ -1,0 +1,8 @@
+@import '../../lib/variables.scss';
+
+@media screen and (min-width: $mid-screen) {
+  .search-form {
+    padding-top: 0.5rem;
+    padding-left: 3rem;
+  }
+}

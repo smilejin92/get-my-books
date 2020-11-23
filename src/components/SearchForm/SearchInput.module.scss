@@ -1,0 +1,22 @@
+@import '../../lib/variables.scss';
+
+.search-term-label {
+  position: relative;
+
+  &::before {
+    position: absolute;
+    top: 25%;
+    left: 0.5rem;
+    transform: translateY(-50%);
+    font-size: 2rem;
+    color: $label-text-color;
+  }
+
+  .search-term {
+    width: 100%;
+    padding: 0.5rem 1rem;
+    padding-left: 4rem;
+    font-size: 1.8rem;
+    border: 1px solid $input-border-color;
+  }
+}
