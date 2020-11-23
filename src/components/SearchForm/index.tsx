@@ -1,6 +1,6 @@
 import React, { FormEvent, useCallback } from 'react';
 import SearchInputContainer from '../../containers/SearchInputContainer';
-import s from './index.module.scss';
+import s from './style.module.scss';
 
 function SearchForm() {
   const handleSubmit = useCallback((e: FormEvent<HTMLFormElement>) => {

@@ -1,7 +1,7 @@
 import React from 'react';
 import Logo from '../Logo';
 import SearchForm from '../SearchForm';
-import s from './index.module.scss';
+import s from './style.module.scss';
 
 const HomeHeader: React.FC = () => (
   <header className={s['header']}>
