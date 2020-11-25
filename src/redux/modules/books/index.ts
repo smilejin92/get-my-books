@@ -1,3 +1,5 @@
+import { ActionType, createAction, createReducer } from 'typesafe-actions';
+
 // TYPES
 export interface Book {
   authors: string[];
@@ -14,15 +16,7 @@ export interface Book {
   url: string;
 }
 
-type BooksAction =
-  | ReturnType<typeof fetchBooksStart>
-  | ReturnType<typeof fetchBooksSuccess>
-  | ReturnType<typeof fetchBooksFailure>
-  | ReturnType<typeof setQuery>
-  | ReturnType<typeof resetState>
-  | ReturnType<typeof loadMoreBooks>
-  | ReturnType<typeof sortBooks>
-  | ReturnType<typeof setPrice>;
+type BooksAction = ActionType<typeof actions>;
 
 export interface BooksState {
   books: null | Book[];
@@ -43,12 +37,17 @@ export enum SortOrder {
   titleDesc,
 }
 
-// UTILS
+// CONSTANTS
 export const MIN_PRICE = -Infinity;
 export const MAX_PRICE = Infinity;
 const ACTIVE = '정상판매';
 
-export const sortFuncs = {
+// FUNCTIONS
+interface SortFuncs {
+  [funcName: string]: (b1: Book, b2: Book) => number;
+}
+
+export const sortFuncs: SortFuncs = {
   [SortOrder.lowPrice]: (b1: Book, b2: Book): number =>
     getPrice(b1, true) - getPrice(b2, true),
   [SortOrder.highPrice]: (b1: Book, b2: Book): number =>
@@ -83,52 +82,35 @@ const getPrice = (book: Book, infinityType: boolean): number =>
 
 // ACTIONS
 // const prefix = 'get-my-books/books';
-const FETCH_BOOKS_START = `get-my-books/books/FETCH_BOOKS_START` as const;
-const FETCH_BOOKS_SUCCESS = `get-my-books/books/FETCH_BOOKS_SUCCESS` as const;
-const FETCH_BOOKS_FAILURE = `get-my-books/books/FETCH_BOOKS_FAILURE` as const;
-const SET_QUERY = `get-my-books/books/SET_QUERY` as const;
-const RESET_STATE = `get-my-books/books/RESET_STATE` as const;
-const LOAD_MORE_BOOKS = `get-my-books/books/LOAD_MORE_BOOKS` as const;
-const SORT_BOOKS = `get-my-books/books/SORT_BOOKS` as const;
-const SET_PRICE = `get-my-books/books/SET_PRICE` as const;
+const FETCH_BOOKS_START = `get-my-books/books/FETCH_BOOKS_START`;
+const FETCH_BOOKS_SUCCESS = `get-my-books/books/FETCH_BOOKS_SUCCESS`;
+const FETCH_BOOKS_FAILURE = `get-my-books/books/FETCH_BOOKS_FAILURE`;
+const SET_QUERY = `get-my-books/books/SET_QUERY`;
+const RESET_STATE = `get-my-books/books/RESET_STATE`;
+const LOAD_MORE_BOOKS = `get-my-books/books/LOAD_MORE_BOOKS`;
+const SORT_BOOKS = `get-my-books/books/SORT_BOOKS`;
+const SET_PRICE = `get-my-books/books/SET_PRICE`;
 
 // ACTION CREATORS
-export const fetchBooksStart = () => ({
-  type: FETCH_BOOKS_START,
-});
+export const fetchBooksStart = createAction(FETCH_BOOKS_START)();
+export const fetchBooksSuccess = createAction(FETCH_BOOKS_SUCCESS)<Book[]>();
+export const fetchBooksFailure = createAction(FETCH_BOOKS_FAILURE)<Error>();
+export const setQuery = createAction(SET_QUERY)<string>();
+export const resetState = createAction(RESET_STATE)();
+export const loadMoreBooks = createAction(LOAD_MORE_BOOKS)();
+export const sortBooks = createAction(SORT_BOOKS)<number>();
+export const setPrice = createAction(SET_PRICE)<[min: number, max: number]>();
 
-export const fetchBooksSuccess = (books: Book[]) => ({
-  type: FETCH_BOOKS_SUCCESS,
-  payload: books,
-});
-
-export const fetchBooksFailure = (error: Error) => ({
-  type: FETCH_BOOKS_FAILURE,
-  payload: error,
-});
-
-export const setQuery = (query: string) => ({
-  type: SET_QUERY,
-  payload: query,
-});
-
-export const resetState = () => ({
-  type: RESET_STATE,
-});
-
-export const loadMoreBooks = () => ({
-  type: LOAD_MORE_BOOKS,
-});
-
-export const sortBooks = (order: SortOrder) => ({
-  type: SORT_BOOKS,
-  payload: order,
-});
-
-export const setPrice = (priceRange: [min: number, max: number]) => ({
-  type: SET_PRICE,
-  payload: priceRange,
-});
+const actions = {
+  fetchBooksStart,
+  fetchBooksSuccess,
+  fetchBooksFailure,
+  setQuery,
+  resetState,
+  loadMoreBooks,
+  sortBooks,
+  setPrice,
+};
 
 // INITIAL STATE
 const initialState: BooksState = {
@@ -143,95 +125,60 @@ const initialState: BooksState = {
 };
 
 // REDUCER
-function books(
-  state: BooksState = initialState,
-  action: BooksAction,
-): BooksState {
-  switch (action.type) {
-    case FETCH_BOOKS_START:
-      return {
-        ...state,
-        loading: true,
-        error: null,
-      };
-
-    case FETCH_BOOKS_SUCCESS:
-      return {
-        ...state,
-        books: action.payload,
-        filteredBooks: action.payload,
-        loading: false,
-        error: null,
-        page: 1,
-        order: SortOrder.default,
-        priceRange: [MIN_PRICE, MAX_PRICE],
-      };
-
-    case FETCH_BOOKS_FAILURE:
-      return {
-        ...initialState,
-        error: action.payload,
-        query: state.query,
-      };
-
-    case SET_QUERY:
-      return {
-        ...initialState,
-        query: action.payload,
-      };
-
-    case RESET_STATE:
-      return {
-        ...initialState,
-      };
-
-    case LOAD_MORE_BOOKS:
-      return {
-        ...state,
-        page: (state.page as number) + 1,
-      };
-
-    case SORT_BOOKS: {
-      const [minPrice, maxPrice] = state.priceRange;
-      const filteredBooks =
-        action.payload === SortOrder.default
-          ? minPrice === MIN_PRICE && maxPrice === MAX_PRICE
-            ? state.books
-            : (state.books as Book[]).filter(filterPrice(minPrice, maxPrice))
-          : [...(state.filteredBooks as Book[])].sort(
-              sortFuncs[action.payload],
-            );
-
-      return {
-        ...state,
-        order: action.payload,
-        filteredBooks,
-      };
-    }
-
-    case SET_PRICE: {
-      const [minPrice, maxPrice] = action.payload;
-      const filteredBooks =
-        minPrice === MIN_PRICE && maxPrice === MAX_PRICE
+const books = createReducer<BooksState, BooksAction>(initialState, {
+  [FETCH_BOOKS_START]: state => ({ ...state, loading: true, error: null }),
+  [FETCH_BOOKS_SUCCESS]: (state, { payload }) => ({
+    ...state,
+    books: payload,
+    filteredBooks: payload,
+    loading: false,
+    error: null,
+    page: 1,
+    order: SortOrder.default,
+    priceRange: [MIN_PRICE, MAX_PRICE],
+  }),
+  [FETCH_BOOKS_FAILURE]: (state, { payload }) => ({
+    ...initialState,
+    error: payload,
+    query: state.query,
+  }),
+  [SET_QUERY]: (_, { payload }) => ({ ...initialState, query: payload }),
+  [RESET_STATE]: () => ({ ...initialState }),
+  [LOAD_MORE_BOOKS]: state => ({ ...state, page: (state.page as number) + 1 }),
+  [SORT_BOOKS]: (state, { payload }) => {
+    const [minPrice, maxPrice] = state.priceRange;
+    const filteredBooks =
+      payload === SortOrder.default
+        ? minPrice === MIN_PRICE && maxPrice === MAX_PRICE
           ? state.books
-          : (state.books as Book[]).filter(filterPrice(minPrice, maxPrice));
+          : (state.books as Book[]).filter(filterPrice(minPrice, maxPrice))
+        : [...(state.filteredBooks as Book[])].sort(sortFuncs[payload]);
 
-      const sortedBooks =
-        state.order === SortOrder.default
-          ? filteredBooks
-          : (filteredBooks as Book[]).sort(sortFuncs[state.order]);
+    return {
+      ...state,
+      order: payload,
+      filteredBooks,
+    };
+  },
+  [SET_PRICE]: (state, { payload }) => {
+    const [minPrice, maxPrice] = payload;
+    const filteredBooks =
+      minPrice === MIN_PRICE && maxPrice === MAX_PRICE
+        ? state.books
+        : (state.books as Book[]).filter(filterPrice(minPrice, maxPrice));
 
-      return {
-        ...state,
-        priceRange: action.payload,
-        filteredBooks: sortedBooks,
-      };
-    }
+    const sortedBooks =
+      state.order === SortOrder.default
+        ? filteredBooks
+        : (filteredBooks as Book[]).sort(sortFuncs[state.order]);
 
-    default:
-      return state;
-  }
-}
+    return {
+      ...state,
+      priceRange: payload,
+      filteredBooks: sortedBooks,
+    };
+  },
+});
 
 // // SAGA ACTIONS
 // const FETCH_BOOKS = `${prefix}/FETCH_BOOKS`;
