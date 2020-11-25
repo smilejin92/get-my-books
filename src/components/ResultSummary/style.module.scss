@@ -1,0 +1,25 @@
+@import '../../lib/variables.scss';
+
+.summary {
+  font-weight: $bold;
+
+  .search-term {
+    color: $keyword;
+  }
+
+  .total {
+    color: $number;
+  }
+}
+
+@media screen and (max-width: $mid-screen - 1px) {
+  .summary {
+    font-size: 1.6rem;
+  }
+}
+
+@media screen and (min-width: $mid-screen) {
+  .summary {
+    font-size: 2rem;
+  }
+}
