@@ -1,5 +1,5 @@
 import { debounce } from 'lodash';
-import React, { ChangeEvent, useEffect, useMemo } from 'react';
+import React, { ChangeEvent, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useHistory } from 'react-router';
 import SearchInput from '../components/SearchForm/SearchInput';
